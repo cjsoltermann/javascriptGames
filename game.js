@@ -39,6 +39,14 @@ function changeDirection(e) {
   }
 }
 
+function map(x) {
+  if (x > 475)
+    x -= 500;
+  if (x < 0)
+    x += 500;
+  return x;
+}
+
 function draw() {
   ctx.clearRect(0, 0, 500, 500);
   turns.unshift(direction);
@@ -73,9 +81,10 @@ function draw() {
         curx -= 25;
         break;
     }
-    ctx.fillRect(curx, cury, 25, 25);
+    ctx.fillRect(map(curx), map(cury), 25, 25);
   }
   ctx.fillStyle = "red";
+  x = map(x), y = map(y);
   ctx.fillRect(x, y, 25, 25);
   ctx.fillStyle = "black";
   setTimeout(draw, 100);
