@@ -3,6 +3,7 @@ var x = 250;
 var y = 250;
 var ctx;
 var turns = [0];
+var apple = [25, 25];
 
 function main() {
   var canvas = document.getElementById("game");
@@ -83,8 +84,14 @@ function draw() {
     }
     ctx.fillRect(map(curx), map(cury), 25, 25);
   }
-  ctx.fillStyle = "red";
   x = map(x), y = map(y);
+  ctx.fillStyle = "red"
+  ctx.fillRect(apple[0], apple[1], 25, 25);
+  if ( apple[0] == x && apple[1] == y) {
+     apple[0] = Math.floor(Math.random() * (20)) * 25;
+     apple[1] = Math.floor(Math.random() * (20)) * 25;
+     turns.push(direction);
+  }
   ctx.fillRect(x, y, 25, 25);
   ctx.fillStyle = "black";
   setTimeout(draw, 100);
