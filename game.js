@@ -1,7 +1,7 @@
 var nextMovement = [0, 1], direction = [0, 1];
 var x = 250, y = 250;
 var ctx;
-var turns = [0];
+var turns = [[0, 1]];
 var apple = [25, 25];
 
 function main() {
@@ -48,27 +48,15 @@ function map(x) {
 
 function draw() {
   ctx.clearRect(0, 0, 500, 500);
+  direction = nextMovement;
   turns.unshift(direction);
   turns.pop();
-  direction = nextMovement;
   x += 25 * direction[0];
-  y += 25 * direction[1];
+  y -= 25 * direction[1];
   var curx = x, cury = y;
   for (var turn of turns) {
-    switch (turn) {
-      case 0:
-        cury += 25;
-        break;
-      case 1:
-        cury -= 25;
-        break;
-      case 2:
-        curx += 25;
-        break;
-      case 3:
-        curx -= 25;
-        break;
-    }
+    curx -= 25 * turn[0];
+    cury += 25 * turn[1];
     if (curx === x && cury === y) {
       gameOver();
       return;
