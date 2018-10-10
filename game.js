@@ -12,6 +12,12 @@ function main() {
   draw();
 }
 
+function gameOver() {
+  ctx.clearRect(0, 0, 500, 500);
+  ctx.font = "30px Arial";
+  ctx.fillText("Game Over", 250 - ctx.measureText("Game Over").width / 2, 250 - 15);
+}
+
 function changeDirection(e) {
   switch (e.key) {
     case "w":
@@ -82,17 +88,21 @@ function draw() {
         curx -= 25;
         break;
     }
-    ctx.fillRect(map(curx), map(cury), 25, 25);
+    if (curx === x && cury === y) {
+      gameOver();
+      return;
+    }
+    ctx.fillRect(map(curx) + 2, map(cury) + 2, 25 - 2, 25 - 2);
   }
   x = map(x), y = map(y);
   ctx.fillStyle = "red"
-  ctx.fillRect(apple[0], apple[1], 25, 25);
+  ctx.fillRect(apple[0] + 2, apple[1] + 2, 25 - 2, 25 - 2);
   if ( apple[0] == x && apple[1] == y) {
      apple[0] = Math.floor(Math.random() * (20)) * 25;
      apple[1] = Math.floor(Math.random() * (20)) * 25;
      turns.push(direction);
   }
-  ctx.fillRect(x, y, 25, 25);
+  ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
   ctx.fillStyle = "black";
   setTimeout(draw, 100);
 }
