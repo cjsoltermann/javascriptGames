@@ -1,4 +1,5 @@
 var direction = 1;
+var currentDirection = 1;
 var x = 250;
 var y = 250;
 var ctx;
@@ -21,19 +22,19 @@ function gameOver() {
 function changeDirection(e) {
   switch (e.key) {
     case "w":
-      if (direction !== 1)
+      if (currentDirection !== 1)
         direction = 0;
       break;
     case "s":
-      if (direction !== 0)
+      if (currentDirection !== 0)
         direction = 1;
       break;
     case "a":
-      if (direction !== 3)
+      if (currentDirection !== 3)
         direction = 2;
       break;
     case "d":
-      if (direction !== 2)
+      if (currentDirection !== 2)
         direction = 3;
       break;
     case " ":
@@ -72,6 +73,7 @@ function draw() {
       x += 25;
       break;
   }
+  currentDirection = direction;
   var curx = x, cury = y;
   for (var turn of turns) {
     switch (turn) {
