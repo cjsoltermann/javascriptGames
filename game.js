@@ -1,7 +1,5 @@
-var direction = 1;
-var currentDirection = 1;
-var x = 250;
-var y = 250;
+var nextMovement = [0, 1], direction = [0, 1];
+var x = 250, y = 250;
 var ctx;
 var turns = [0];
 var apple = [25, 25];
@@ -22,27 +20,20 @@ function gameOver() {
 function changeDirection(e) {
   switch (e.key) {
     case "w":
-      if (currentDirection !== 1)
-        direction = 0;
+      if (direction !== [0, -1])
+        nextMovement = [0, 1]
       break;
     case "s":
-      if (currentDirection !== 0)
-        direction = 1;
+      if (direction !== [0, 1])
+        nextMovement = [0, -1]
       break;
     case "a":
-      if (currentDirection !== 3)
-        direction = 2;
+      if (direction !== [1, 0])
+        nextMovement = [-1, 0]
       break;
     case "d":
-      if (currentDirection !== 2)
-        direction = 3;
-      break;
-    case " ":
-      turns.push(direction);
-      break;
-    case "p":
-      x = 250;
-      y = 250;
+      if (direction !== [-1, 0])
+        nextMovement = [1, 0]
       break;
   }
 }
@@ -59,21 +50,9 @@ function draw() {
   ctx.clearRect(0, 0, 500, 500);
   turns.unshift(direction);
   turns.pop();
-  switch (direction) {
-    case 0:
-      y -= 25;
-      break;
-    case 1:
-      y += 25;
-      break;
-    case 2:
-      x -= 25;
-      break;
-    case 3:
-      x += 25;
-      break;
-  }
-  currentDirection = direction;
+  direction = nextMovement;
+  x += 25 * direction[0];
+  y += 25 * direction[1];
   var curx = x, cury = y;
   for (var turn of turns) {
     switch (turn) {
