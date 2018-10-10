@@ -20,19 +20,19 @@ function gameOver() {
 function changeDirection(e) {
   switch (e.key) {
     case "w":
-      if (direction !== [0, -1])
+      if (direction[0] !== 0 && direction[1] !== -1)
         nextMovement = [0, 1]
       break;
     case "s":
-      if (direction !== [0, 1])
+      if (direction[0] !== 0 && direction[1] !== 1)
         nextMovement = [0, -1]
       break;
     case "a":
-      if (direction !== [1, 0])
+      if (direction[0] !== 1 && direction[1] !== 0)
         nextMovement = [-1, 0]
       break;
     case "d":
-      if (direction !== [-1, 0])
+      if (direction[0] !== -1 && direction[1] !== 0)
         nextMovement = [1, 0]
       break;
   }
