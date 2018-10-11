@@ -46,6 +46,12 @@ function map(x) {
   return x;
 }
 
+function newApple() {
+  apple[0] = Math.floor(Math.random() * (20)) * 25;
+  apple[1] = Math.floor(Math.random() * (20)) * 25;
+  turns.push(direction);
+}
+
 function draw() {
   ctx.clearRect(0, 0, 500, 500);
   direction = nextMovement;
@@ -61,15 +67,15 @@ function draw() {
       gameOver();
       return;
     }
+    if (curx == apple[0] && cury == apple[1])
+      newApple();
     ctx.fillRect(map(curx) + 2, map(cury) + 2, 25 - 2, 25 - 2);
   }
   x = map(x), y = map(y);
   ctx.fillStyle = "red"
   ctx.fillRect(apple[0] + 2, apple[1] + 2, 25 - 2, 25 - 2);
   if ( apple[0] == x && apple[1] == y) {
-     apple[0] = Math.floor(Math.random() * (20)) * 25;
-     apple[1] = Math.floor(Math.random() * (20)) * 25;
-     turns.push(direction);
+    newApple();
   }
   ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
   ctx.fillStyle = "black";
