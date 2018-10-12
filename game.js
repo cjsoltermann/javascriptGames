@@ -63,11 +63,11 @@ function draw() {
   for (var turn of turns) {
     curx -= 25 * turn[0];
     cury += 25 * turn[1];
-    if (curx === x && cury === y) {
+    if (map(curx) === x && map(cury) === y) {
       gameOver();
       return;
     }
-    if (curx == apple[0] && cury == apple[1])
+    if (map(curx) == apple[0] && map(cury) == apple[1])
       newApple();
     ctx.fillRect(map(curx) + 2, map(cury) + 2, 25 - 2, 25 - 2);
   }
