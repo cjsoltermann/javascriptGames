@@ -1,8 +1,9 @@
-var nextMovement = [0, 1], direction = [0, 1];
-var x = 250, y = 250;
+var nextMovement = direction = [0, 1];
+var x = y = 250;
 var ctx;
 var turns = [[0, 1]];
 var apple = [25, 25];
+var isGameOver = false;
 
 function main() {
   var canvas = document.getElementById("game");
@@ -12,9 +13,14 @@ function main() {
 }
 
 function gameOver() {
+  turns = [[0, 1]];
+  x = y = 250;
+  isGameOver = true;
   ctx.clearRect(0, 0, 500, 500);
   ctx.font = "30px Arial";
   ctx.fillText("Game Over", 250 - ctx.measureText("Game Over").width / 2, 250 - 15);
+  ctx.font = "20px Arial";
+  ctx.fillText("Press 'R' to restart", 250 - ctx.measureText("Press 'R' to restart").width / 2, 250 + 10);
 }
 
 function changeDirection(e) {
@@ -34,6 +40,10 @@ function changeDirection(e) {
     case "d":
       if (direction[0] !== -1 && direction[1] !== 0)
         nextMovement = [1, 0]
+      break;
+    case "r":
+      if (isGameOver)
+        draw();
       break;
   }
 }
