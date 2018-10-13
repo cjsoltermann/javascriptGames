@@ -113,8 +113,8 @@ function draw() {
   ctx.fillRect(apple[0] + 2, apple[1] + 2, 25 - 2, 25 - 2);
   if ( apple[0] == x && apple[1] == y) {
     points += apple[2];
-    newApple();
     tailsToGive += apple[2];
+    newApple();
   }
   ctx.fillStyle = "red"
   ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
