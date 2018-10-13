@@ -85,12 +85,12 @@ function newApple() {
 function draw() {
   ctx.clearRect(0, 0, 500, 500);
   direction = nextMovement;
-  turns.unshift(direction);
-  turns.pop();
   if (tailsToGive > 0) {
     turns.push(turns[turns.length -1]);
     tailsToGive--;
   }
+  turns.unshift(direction);
+  turns.pop();
   x += 25 * direction[0];
   y -= 25 * direction[1];
   var curx = x, cury = y;
