@@ -18,6 +18,9 @@ function main() {
 function gameOver() {
   turns = [[0, 1]];
   x = y = 250;
+  apple = [25, 25, 1, "red"];
+  points = 0;
+  tailsToGive = 0;
   isGameOver = true;
   ctx.clearRect(0, 0, 500, 500);
   ctx.font = "30px Arial";
