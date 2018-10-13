@@ -4,11 +4,13 @@ var ctx;
 var turns = [[0, 1]];
 var apple = [25, 25];
 var isGameOver = false;
+var counter;
 
 function main() {
   var canvas = document.getElementById("game");
   document.addEventListener("keydown", changeDirection, false);
   ctx = canvas.getContext("2d");
+  counter = document.getElementById("counter");
   draw();
 }
 
@@ -89,5 +91,6 @@ function draw() {
   }
   ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
   ctx.fillStyle = "black";
+  counter.textContent = "Points: " + (turns.length - 1));
   setTimeout(draw, 100);
 }
