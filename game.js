@@ -2,9 +2,10 @@ var nextMovement = direction = [0, 1];
 var x = y = 250;
 var ctx;
 var turns = [[0, 1]];
-var apple = [25, 25];
+var apple = [25, 25, 1, "red"];
 var isGameOver = false;
 var counter;
+var points = tailsToGive = 0;
 
 function main() {
   var canvas = document.getElementById("game");
@@ -61,7 +62,24 @@ function map(x) {
 function newApple() {
   apple[0] = Math.floor(Math.random() * (20)) * 25;
   apple[1] = Math.floor(Math.random() * (20)) * 25;
-  turns.push(direction);
+  if (points > 50) {
+    apple[2] = 20;
+    apple[3] = "purple";
+    return;
+  }
+  if (points > 25) {
+    apple[2] = 10;
+    apple[3] = "green";
+    return;
+  }
+  if (points > 5) {
+    apple[2] = 5;
+    apple[3] = "blue";
+    return;
+  }
+  apple[2] = 1;
+  apple[3] = "red";
+  return;
 }
 
 function draw() {
@@ -69,6 +87,10 @@ function draw() {
   direction = nextMovement;
   turns.unshift(direction);
   turns.pop();
+  if (tailsToGive > 0) {
+    turns.push(turns[turns.length -1]);
+    tailsToGive--;
+  }
   x += 25 * direction[0];
   y -= 25 * direction[1];
   var curx = x, cury = y;
@@ -84,13 +106,16 @@ function draw() {
     ctx.fillRect(map(curx) + 2, map(cury) + 2, 25 - 2, 25 - 2);
   }
   x = map(x), y = map(y);
-  ctx.fillStyle = "red"
+  ctx.fillStyle = apple[3];
   ctx.fillRect(apple[0] + 2, apple[1] + 2, 25 - 2, 25 - 2);
   if ( apple[0] == x && apple[1] == y) {
+    points += apple[2];
     newApple();
+    tailsToGive += apple[2];
   }
+  ctx.fillStyle = "red"
   ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
   ctx.fillStyle = "black";
-  counter.textContent = "Points: " + (turns.length - 1));
+  counter.textContent = "Points: " + (points);
   setTimeout(draw, 100);
 }
