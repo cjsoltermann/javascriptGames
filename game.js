@@ -30,7 +30,6 @@ function main() {
 
 function gameOver(player) {
   player.turns = [[0, 1]];
-  player.points = 0;
   player.tailsToGive = 0;
 }
 
