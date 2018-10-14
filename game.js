@@ -1,124 +1,151 @@
-var nextMovement = direction = [0, 1];
-var x = y = 250;
-var ctx;
-var turns = [[0, 1]];
-var apple = [25, 25, 1, "red"];
+var box = 5;
+var ctx, canvas;
+var apple1 = [0,0,1,"red"];
+var apple2 = [0,0,1,"red"];
 var isGameOver = false;
-var counter;
-var points = tailsToGive = 0;
+var counter1, counter2;
+var player1, player2;
+var apples = [[1, "red"], [5, "blue"], [10, "green"], [20, "purple"], [50, "pink"], [100, "brown"], [500, "black"]]
+var difficulty = 0;
+
+function player(x, y) {
+  this.x = this.y = 50;
+  this.nextMovement = this.direction = [0, 1];
+  this.turns = [[0, 1]];
+  this.points = this.tailsToGive = 0;
+}
 
 function main() {
-  var canvas = document.getElementById("game");
+  canvas = document.getElementById("game");
   document.addEventListener("keydown", changeDirection, false);
   ctx = canvas.getContext("2d");
-  counter = document.getElementById("counter");
+  counter1 = document.getElementById("counter1");
+  counter2 = document.getElementById("counter2");
+  player1 = new player(50, 50);
+  player2 = new player(450, 450);
+  newApple(apple1);
+  newApple(apple2);
   draw();
 }
 
-function gameOver() {
-  turns = [[0, 1]];
-  x = y = 250;
-  apple = [25, 25, 1, "red"];
-  points = 0;
-  tailsToGive = 0;
-  isGameOver = true;
-  ctx.clearRect(0, 0, 500, 500);
-  ctx.font = "30px Arial";
-  ctx.fillText("Game Over", 250 - ctx.measureText("Game Over").width / 2, 250 - 15);
-  ctx.font = "20px Arial";
-  ctx.fillText("Press 'R' to restart", 250 - ctx.measureText("Press 'R' to restart").width / 2, 250 + 10);
+function gameOver(player) {
+  player.turns = [[0, 1]];
+  player.points = 0;
+  player.tailsToGive = 0;
 }
 
 function changeDirection(e) {
   switch (e.key) {
     case "w":
-      if (direction[0] !== 0 && direction[1] !== -1)
-        nextMovement = [0, 1]
+      if (player1.direction[0] !== 0 && player1.direction[1] !== -1)
+        player1.nextMovement = [0, 1]
       break;
     case "s":
-      if (direction[0] !== 0 && direction[1] !== 1)
-        nextMovement = [0, -1]
+      if (player1.direction[0] !== 0 && player1.direction[1] !== 1)
+        player1.nextMovement = [0, -1]
       break;
     case "a":
-      if (direction[0] !== 1 && direction[1] !== 0)
-        nextMovement = [-1, 0]
+      if (player1.direction[0] !== 1 && player1.direction[1] !== 0)
+        player1.nextMovement = [-1, 0]
       break;
     case "d":
-      if (direction[0] !== -1 && direction[1] !== 0)
-        nextMovement = [1, 0]
+      if (player1.direction[0] !== -1 && player1.direction[1] !== 0)
+        player1.nextMovement = [1, 0]
       break;
-    case "r":
-      if (isGameOver)
-        draw();
+    case "ArrowUp":
+      if (player2.direction[0] !== 0 && player2.direction[1] !== -1)
+        player2.nextMovement = [0, 1]
+      break;
+    case "ArrowDown":
+      if (player2.direction[0] !== 0 && player2.direction[1] !== 1)
+        player2.nextMovement = [0, -1]
+      break;
+    case "ArrowLeft":
+      if (player2.direction[0] !== 1 && player2.direction[1] !== 0)
+        player2.nextMovement = [-1, 0]
+      break;
+    case "ArrowRight":
+      if (player2.direction[0] !== -1 && player2.direction[1] !== 0)
+        player2.nextMovement = [1, 0]
       break;
   }
 }
 
 function map(x) {
-  if (x > 475)
-    x -= 500;
+  if (x > canvas.width - box)
+    x -= canvas.width;
   if (x < 0)
-    x += 500;
+    x += canvas.width;
   return x;
 }
 
-function newApple() {
-  apple[0] = Math.floor(Math.random() * (20)) * 25;
-  apple[1] = Math.floor(Math.random() * (20)) * 25;
-  if (points > 50) {
-    apple[2] = 20;
-    apple[3] = "purple";
-    return;
-  }
-  if (points > 25) {
-    apple[2] = 10;
-    apple[3] = "green";
-    return;
-  }
-  if (points > 5) {
-    apple[2] = 5;
-    apple[3] = "blue";
-    return;
-  }
-  apple[2] = 1;
-  apple[3] = "red";
-  return;
+function newApple(apple) {
+  apple[0] = Math.floor(Math.random() * (canvas.width / box)) * box;
+  apple[1] = Math.floor(Math.random() * (canvas.width / box)) * box;
+  apple[2] = (Math.floor(apples[difficulty][0] / box) + 1) * 10;
+  apple[3] = apples[difficulty][1];
 }
 
 function draw() {
-  ctx.clearRect(0, 0, 500, 500);
-  direction = nextMovement;
-  if (tailsToGive > 0) {
-    turns.push(turns[turns.length -1]);
-    tailsToGive--;
-  }
-  turns.unshift(direction);
-  turns.pop();
-  x += 25 * direction[0];
-  y -= 25 * direction[1];
-  var curx = x, cury = y;
-  for (var turn of turns) {
-    curx -= 25 * turn[0];
-    cury += 25 * turn[1];
-    if (map(curx) === x && map(cury) === y) {
-      gameOver();
-      return;
+  ctx.clearRect(0, 0, canvas.width, canvas.width);
+
+  function movePlayer(player, enemy) {
+    player.direction = player.nextMovement;
+    if (player.tailsToGive > 0) {
+      player.turns.push(player.turns[player.turns.length -1]);
+      player.tailsToGive--;
     }
-    if (map(curx) == apple[0] && map(cury) == apple[1])
-      newApple();
-    ctx.fillRect(map(curx) + 2, map(cury) + 2, 25 - 2, 25 - 2);
+    player.turns.unshift(player.direction);
+    player.turns.pop();
+    player.x += box * player.direction[0];
+    player.y -= box * player.direction[1];
+    var curx = player.x, cury = player.y;
+    for (var turn of player.turns) {
+      curx = map(curx - (box * turn[0]));
+      cury = map(cury + (box * turn[1]));
+      if (curx === player.x && cury === player.y) {
+        gameOver(player);
+        return;
+      }
+      if (curx == enemy.x && cury == enemy.y) {
+        gameOver(enemy);
+      }
+      if (curx == apple1[0] && cury == apple1[1])
+        newApple(apple1);
+      if (curx == apple2[0] && cury == apple2[1])
+        newApple(apple2);
+      ctx.fillRect(curx + 2, cury + 2, box - 2, box - 2);
+    }
+    player.x = map(player.x), player.y = map(player.y);
+    if ( apple1[0] == player.x && apple1[1] == player.y) {
+      player.points += 1;
+      player.tailsToGive += apple1[2];
+      newApple(apple1);
+    }
+    if ( apple2[0] == player.x && apple2[1] == player.y) {
+      player.points += 1;
+      player.tailsToGive += apple2[2];
+      newApple(apple2);
+    }
+    ctx.fillStyle = "red"
+    ctx.fillRect(player.x + 2, player.y + 2, box - 2, box - 2);
   }
-  x = map(x), y = map(y);
-  ctx.fillStyle = apple[3];
-  ctx.fillRect(apple[0] + 2, apple[1] + 2, 25 - 2, 25 - 2);
-  if ( apple[0] == x && apple[1] == y) {
-    points += apple[2];
-    tailsToGive += apple[2];
-    newApple();
-  }
-  ctx.fillStyle = "red"
-  ctx.fillRect(x + 2, y + 2, 25 - 2, 25 - 2);
+
+  difficulty = Math.floor(((player1.points + player2.points) / 20) * 6);
+  if (difficulty > 5)
+    difficulty = 6;
+
+  movePlayer(player1, player2);
+  movePlayer(player2, player1);
+
+  ctx.fillStyle = apple1[3];
+  ctx.fillRect(apple1[0] + 2, apple1[1] + 2, box - 2, box - 2);
+
+  ctx.fillStyle = apple2[3];
+  ctx.fillRect(apple2[0] + 2, apple2[1] + 2, box - 2, box - 2);
+  
   ctx.fillStyle = "black";
-  counter.textContent = "Points: " + (points);
+  counter1.textContent = "Player 1 Points: " + (player1.points);
+  counter2.textContent = "Player 2 Points: " + (player2.points);
   setTimeout(draw, 100);
 }
