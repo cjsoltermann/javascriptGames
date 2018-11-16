@@ -5,6 +5,7 @@ var boxes = [];
 var canvas, ctx;
 var player1, player2;
 var keys = {};
+var keyFuncs = {};
 
 function box(x, y, color, size, vx, vy) {
   this.x = x ? x : 0;
@@ -58,13 +59,53 @@ function setup() {
   document.addEventListener("keyup", function(e) { keys[e.key] = 0; }, false);
 }
 
+function safeMove(object, x, y) {
+  object.x += x;
+  object.y += y;
+  if (offScreen(object)) {
+    object.x -= x;
+    object.y -= y;
+  }
+}
+
+function shootBullet(src, x, y) {
+  var bullet = new physicsBox(x, y, {size: 0.5, color: "yellow", x: src.x, y: src.y});
+  addBox(bullet);
+  bullet.update = function() {if (offScreen(this)) { removeBox(this) }};
+}
+
 function main() {
   setup();
+
   player1 = new box(5, 5);
+  onKeyDown("w", function () { safeMove(player1, 0, -1); })
+  onKeyDown("a", function () { safeMove(player1, -1, 0); })
+  onKeyDown("s", function () { safeMove(player1, 0, 1); })
+  onKeyDown("d", function () { safeMove(player1, 1, 0); })
+  onKeyDown("f", function () { shootBullet(player1, 1, 0); });
+  onKeyDown("q", function () { player1.size++; player1.x -= boxSize / 2; player1.y -= boxSize / 2});
+  onKeyDown("e", function () { player1.size--; player1.x += boxSize / 2; player1.y += boxSize / 2});
+
   player2 = new box(25, 25, "blue");
-  var bullet = new physicsBox(.5,0,{size:0.5});
-  addBoxes(player1, player2, bullet);
+  onKeyDown("ArrowUp", function () { safeMove(player2, 0, -1); });
+  onKeyDown("ArrowLeft", function () { safeMove(player2, -1, 0); });
+  onKeyDown("ArrowDown", function () { safeMove(player2, 0, 1); });
+  onKeyDown("ArrowRight", function () { safeMove(player2, 1, 0); });
+  onKeyDown("1", function () { shootBullet(player2, 1, 0); });
+
+  addBoxes(player1, player2);
   gameLoop();
+}
+
+function onKeyDown(key, func) {
+  keyFuncs[key] = func;
+}
+
+function processKeys() {
+  for (key in keys) {
+    if (keys[key] && keyFuncs[key])
+      keyFuncs[key]();
+  }
 }
 
 function gameLoop() {
@@ -80,61 +121,8 @@ function offScreen(thing) {
   return false;
 }
 
-function movement() {
-  if (keys["w"]) {
-    player1.y--;
-    if (offScreen(player1))
-      player1.y++;
-  }
-  if (keys["a"]) {
-    player1.x--;
-    if (offScreen(player1))
-      player1.x++;
-  }
-  if (keys["s"]) {
-    player1.y++;
-    if (offScreen(player1))
-      player1.y--;
-  }
-  if (keys["d"]) {
-    player1.x++;
-    if (offScreen(player1))
-      player1.x--;
-  }
-  if (keys["ArrowUp"]) {
-    player2.y--;
-    if (offScreen(player1))
-      player1.y++;
-  }
-  if (keys["ArrowLeft"]) {
-    player2.x--;
-    if (offScreen(player1))
-      player1.x++;
-  }
-  if (keys["ArrowDown"]) {
-    player2.y++;
-    if (offScreen(player1))
-      player1.y--;
-  }
-  if (keys["ArrowRight"]) {
-    player2.x++;
-    if (offScreen(player1))
-      player1.x--;
-  }
-  if (keys["f"]) {
-    var bullet = new physicsBox(0.5, 1, {size:0.5,color:"yellow",x:player1.x,y:player1.y});
-    addBox(bullet);
-    bullet.update = function() {if (offScreen(this)) { removeBox(this); }};
-  }
-  if (keys["1"]) {
-    var bullet = new physicsBox(0.5, 1, {size:0.5,color:"yellow",x:player2.x,y:player2.y});
-    addBox(bullet);
-    bullet.update = function() {if (offScreen(this)) { removeBox(this); }};
-  }
-}
-
 function update() {
-  movement();
+  processKeys();
   for (let box of boxes)
     if (box._update)
       box._update()
