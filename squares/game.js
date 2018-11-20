@@ -111,9 +111,13 @@ function safeMove(object, x, y) {
 }
 
 function shootBullet(src, x, y) {
-  var bullet = new Box.physicsBox(src.x + 30, src.y, "yellow", 0.5, x, y);
-  addBox(bullet);
-  bullet.update = function() {if (offScreen(this)) { removeBox(this) }};
+  if (!src.coolDown > 0) {
+    var bullet = new Box.physicsBox(src.x + 30, src.y, "yellow", 0.5, x, y);
+    addBox(bullet);
+    bullet.update = function() {if (offScreen(this)) { removeBox(this) }};
+    src.coolDown = 10;
+  }
+  src.coolDown--;
 }
 
 function main() {
