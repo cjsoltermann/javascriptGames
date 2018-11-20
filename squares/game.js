@@ -6,27 +6,64 @@ var canvas, ctx;
 var player1, player2;
 var keys = {};
 var keyFuncs = {};
+var mouseX;
+var mouseY;
+var canvasX, canvasY;
 
-function box(x, y, color, size, vx, vy) {
+var Box = {}
+
+Box.box = function(x, y, color, size) {
   this.x = x ? x : 0;
   this.y = y ? y : 0;
   this.color = color ? color : "red";
   this.size = size ? size : 1;
+
+  this.draw = function(x, y) {
+    ctx.fillStyle = this.color;
+    var size = this.size * boxSize;
+    ctx.fillRect((x ? x : 0) + this.x, (y ? y : 0) + this.y, size, size);
+  }
 }
 
-function physicsBox(vx, vy, box) {
-  this.x = box && box.x ? box.x : 0;
-  this.y = box && box.y ? box.y : 0;
-  this.color = box && box.color ? box.color : "red";
-  this.size = box && box.size ? box.size : 1;
-  
+function draw() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(0,0,width,width);
+  for (let box of boxes) {
+    box.draw();
+  }
+}
+
+Box.physicsBox = function(x, y, color, size, vx, vy) {
+  Box.box.call(this, x, y, color, size);
   this.vx = vx ? vx : 0;
   this.vy = vy ? vy : 0;
+  
   this.update = function () {};
   this._update = function() {
     this.update();
     this.x += this.vx;
     this.y += this.vy;
+  }
+}
+
+Box.collection = function(x, y, boxes) {
+  this.x = x ? x : 0;
+  this.y = y ? y : 0;
+  this.boxes = boxes ? boxes : [];
+
+  this.draw = function(x, y) {
+    for (let box of this.boxes) {
+      box.draw((x ? x : 0) + this.x, (y ? y : 0) + this.y);
+    }
+  }
+
+  this.addBox = function(box) {
+    this.boxes.push(box); 
+  }
+
+  this.addBoxes = function() {
+    for (argument of arguments)
+      this.boxes.push(argument);
   }
 }
 
@@ -55,21 +92,26 @@ function setup() {
   ctx = canvas.getContext("2d");
   canvas.width = width;
   canvas.height = width;
+  canvasX = canvas.getBoundingClientRect().left;
+  canvasY = canvas.getBoundingClientRect().top;
   document.addEventListener("keydown", function(e) { keys[e.key] = 1; }, false);
   document.addEventListener("keyup", function(e) { keys[e.key] = 0; }, false);
+  canvas.addEventListener("mousemove", function(e) { mouseX = e.clientX - canvasX; mouseY = e.clientY - canvasY; }, false);
 }
 
 function safeMove(object, x, y) {
   object.x += x;
-  object.y += y;
   if (offScreen(object)) {
     object.x -= x;
+  }
+  object.y += y;
+  if (offScreen(object)) {
     object.y -= y;
   }
 }
 
 function shootBullet(src, x, y) {
-  var bullet = new physicsBox(x, y, {size: 0.5, color: "yellow", x: src.x, y: src.y});
+  var bullet = new Box.physicsBox(src.x + 30, src.y, "yellow", 0.5, x, y);
   addBox(bullet);
   bullet.update = function() {if (offScreen(this)) { removeBox(this) }};
 }
@@ -77,21 +119,26 @@ function shootBullet(src, x, y) {
 function main() {
   setup();
 
-  player1 = new box(5, 5);
+  player1 = new Box.collection(5, 5);
+  player1.addBox(new Box.box(0, 0));
+  player1.size = 1;
   onKeyDown("w", function () { safeMove(player1, 0, -1); })
   onKeyDown("a", function () { safeMove(player1, -1, 0); })
   onKeyDown("s", function () { safeMove(player1, 0, 1); })
   onKeyDown("d", function () { safeMove(player1, 1, 0); })
-  onKeyDown("f", function () { shootBullet(player1, 1, 0); });
-  onKeyDown("q", function () { player1.size++; player1.x -= boxSize / 2; player1.y -= boxSize / 2});
-  onKeyDown("e", function () { player1.size--; player1.x += boxSize / 2; player1.y += boxSize / 2});
+  onKeyDown("f", function () { shootBullet(player1, 2, 0); });
 
-  player2 = new box(25, 25, "blue");
+  player2 = new Box.box(25, 25, "blue");
   onKeyDown("ArrowUp", function () { safeMove(player2, 0, -1); });
   onKeyDown("ArrowLeft", function () { safeMove(player2, -1, 0); });
   onKeyDown("ArrowDown", function () { safeMove(player2, 0, 1); });
   onKeyDown("ArrowRight", function () { safeMove(player2, 1, 0); });
   onKeyDown("1", function () { shootBullet(player2, 1, 0); });
+
+  collectionTest = new Box.collection(20, 0);
+  collectionTest.addBox(new Box.box(2.5, 0, "gray", .6));
+  collectionTest.addBox(new Box.box(-2.5, 0, "gray", .6));
+  player1.addBox(collectionTest);
 
   addBoxes(player1, player2);
   gameLoop();
@@ -126,14 +173,4 @@ function update() {
   for (let box of boxes)
     if (box._update)
       box._update()
-}
-
-function draw() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0,0,width,width);
-  for (let box of boxes) {
-    var size = box.size * boxSize;
-    ctx.fillStyle = box.color;
-    ctx.fillRect(box.x, box.y, size, size); 
-  }
 }
