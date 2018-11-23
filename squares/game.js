@@ -19,6 +19,8 @@ Box.box = function(x, y, color, size) {
   this.size = size ? size : 1;
   this.rotation = 0;
   this.center = [0, 0];
+  this._update = function () {this.update()};
+  this.update = function () {};
 
   this.draw = function(x, y) {
     Box.ctx.fillStyle = this.color;
@@ -27,7 +29,7 @@ Box.box = function(x, y, color, size) {
     var r = this.rotation % (Math.PI * 2);
     if (r != 0) {
       Box.ctx.save();
-      Box.ctx.translate(this.x + this.center[0], this.y + this.center[1]);
+      Box.ctx.translate((x ? x : 0) + this.x + this.center[0], (y ? y : 0) + this.y + this.center[1]);
       Box.ctx.rotate(r);
       Box.ctx.translate(-this.center[0], -this.center[1]);
       Box.ctx.fillRect(0, 0, size, size);
@@ -65,9 +67,31 @@ Box.physicsBox = function(x, y, color, size, vx, vy, vr) {
 Box.collection = function(x, y, boxes) {
   this.x = x ? x : 0;
   this.y = y ? y : 0;
+  this.rotation = 0;
+  this.center = [0, 0];
   this.boxes = boxes ? boxes : [];
 
+  this._update = function () {
+    this.update();
+    for (box in this.boxes) {
+      this.boxes[box]._update();   
+    }
+  };
+  this.update = function () {};
+
   this.draw = function(x, y) {
+    var r = this.rotation % (Math.PI * 2);
+    if (r != 0) {
+      Box.ctx.save();
+      Box.ctx.translate((x ? x : 0) + this.x + this.center[0], (y ? y : 0) + this.y + this.center[1]);
+      Box.ctx.rotate(r);
+      Box.ctx.translate(-this.center[0], -this.center[1]);
+      for (let box of this.boxes) {
+        box.draw(0, 0);
+      }
+      Box.ctx.restore();
+      return;
+    }
     for (let box of this.boxes) {
       box.draw((x ? x : 0) + this.x, (y ? y : 0) + this.y);
     }
@@ -128,7 +152,7 @@ function safeMove(object, x, y) {
 
 function shootBullet(src, x, y) {
   if (!src.coolDown > 0) {
-    var bullet = new Box.physicsBox(src.x + 30, src.y, "black", 0.5, x, y, 0.1);
+    var bullet = new Box.physicsBox(src.x + (Math.cos(src.rotation) * 30), src.y + (Math.sin(src.rotation) * 30), "black", 0.5, x, y);
     addBox(bullet);
     bullet.update = function() {if (offScreen(this)) { removeBox(this) }};
     src.coolDown = 10;
@@ -154,8 +178,12 @@ function main() {
   Box.player1 = new Box.collection(5, 5);
   Box.player1.addBox(new Box.box(0, 0));
   Box.player1.size = 1;
+  Box.player1.center = [5, 5];
   addController("w s a d", function() { controller(Box.player1, "w", "s", "a", "d") });
-  onKeyDown("f", function (key) { shootBullet(Box.player1, 2, 0); });
+  onKeyDown("f", function (key) { shootBullet(Box.player1, Math.cos(Box.player1.rotation), Math.sin(Box.player1.rotation)); });
+  Box.player1.update = function () {
+    this.rotation = Math.atan2(Box.mouseY - this.y, Box.mouseX - this.x); 
+  };
 
   Box.player2 = new Box.box(25, 25, "blue");
   addController("ArrowUp ArrowDown ArrowLeft ArrowRight", function() { controller(Box.player2, "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight") });
@@ -168,7 +196,7 @@ function main() {
 
   Box.rotationTest = new Box.box(200, 200, "red", 5);
   Box.rotationTest.center = [25, 25];
-  onKeyDown("p", function () { Box.rotationTest.rotation += .1} );
+  onKeyDown("p", function () { Box.rotationTest.rotation += .01} );
 
   addBoxes(Box.player1, Box.player2, Box.rotationTest);
   gameLoop();
